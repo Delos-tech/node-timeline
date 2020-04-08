@@ -36,6 +36,5 @@
     "sinon": "^9.0.2"
   },
   "dependencies": {
-    "tz-offset": "0.0.2"
   }
 }
