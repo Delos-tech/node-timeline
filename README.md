@@ -97,11 +97,6 @@ This project exists thanks to all the people who contribute.
 <a href="https://github.com/delos/node-timeline/graphs/contributors"><img src="https://opencollective.com/node-timeline/contributors.svg?width=890&button=false" /></a>
 
 
-## Backers
-
-Thank you to all our backers! 🙏 [[Become a backer](https://opencollective.com/node-cron#backer)]
-
-<a href="https://opencollective.com/node-cron#backers" target="_blank"><img src="https://opencollective.com/node-cron/backers.svg?width=890"></a>
 
 
 
