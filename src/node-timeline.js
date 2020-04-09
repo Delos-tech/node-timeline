@@ -1,3 +1,5 @@
+const TimelineEvent = require('./timeline-event');
+
 class Timeline {
 
     constructor(name) {
@@ -10,6 +12,7 @@ class Timeline {
 
     addEvent(event, position) {
         this.events.push(event);
+        event.setTimescale(this.timeScale);
     }
 
     removeEvent(label) {
@@ -19,9 +22,7 @@ class Timeline {
     }
 
     play() {
-        this.events.forEach(e => {
-            e.play();
-        });
+        this.events.forEach(e => e.play());
     }
 
     pause() {
@@ -33,20 +34,23 @@ class Timeline {
     }
 
     stop() {
-        this.events.forEach(e => {
-            e.stop();
-        });
+        this.events.forEach(e => e.stop());
     }
 
     setTimeScale(scale) {
         this.timeScale = scale;
+        this.events.forEach(e => e.setTimescale(scale));
+
     }
 
-    delete() {
-        // kill all events
+    kill() {
+        this.stop();
     }
 
 }
 
 module.exports = Timeline;
+
+const tl = new Timeline('t1');
+
 

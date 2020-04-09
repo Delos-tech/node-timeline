@@ -6,7 +6,7 @@ const Scheduler = require('./scheduler');
 
 class TimelineEvent extends EventEmitter {
 
-    constructor({ label, startTime, func, funcParams }) {
+    constructor({ label, startTime, timesScale = 1, func, funcParams }) {
         super();
         this.label = label;
         this.startTime = startTime;
@@ -14,15 +14,18 @@ class TimelineEvent extends EventEmitter {
         this.funcParams = funcParams;
         this.task = new Task(func);
         this.playing = false;
+        this.timeScale = timesScale;
     }
 
     play() {
-        this.scheduler = new Scheduler(this.startTime);
+        this.scheduler = new Scheduler(this.startTime * this.timeScale);
 
         const task = this.task;
         this.scheduler.on('scheduled-time-matched', (now) => {
             let result = task.execute(now);
             this.emit('task-done', result);
+            this.playing = false;
+            this.scheduler.stop();
         });
 
         this.scheduler.start();
@@ -38,6 +41,10 @@ class TimelineEvent extends EventEmitter {
         if (this.playing) {
             this.scheduler.start();
         }
+    }
+
+    setTimescale(scale) {
+        this.timeScale = scale;
     }
 }
 

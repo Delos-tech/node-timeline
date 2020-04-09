@@ -153,5 +153,30 @@ describe('node-timeline', () => {
         timeline.removeEvent('e2');
         this.clock.tick(200);
         assert.equal(executed, 2);
-    })
+    });
+
+    it('should fire the event based on the startTime and timeScale', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        timeline.setTimeScale(2);
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            startTime: 100,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+
+        timeline.play();
+        this.clock.tick(100);
+        assert.equal(executed, 0);
+        this.clock.tick(200);
+        assert.equal(executed, 1);
+    });
+
 });

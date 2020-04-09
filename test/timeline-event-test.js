@@ -108,4 +108,77 @@ describe('TimelineEvent', () => {
         scheduledEvent.stop();
         scheduledEvent3.stop();
     });
+
+    it('should run at the default timeScale', () => {
+
+        let executed = 0;
+        let scheduledEvent = new TimelineEvent({
+            label: 'e1',
+            startTime: 100,
+            func: () => {
+                executed += 1;
+                assert.exports(executed,1);
+            }
+        });
+        // default is one
+
+        scheduledEvent.play();
+
+        this.clock.tick(100);
+
+        assert.equal(executed, 1);
+    });
+
+    it('should run at the specified timeScale', () => {
+
+        let executed = 0;
+        let scheduledEvent = new TimelineEvent({
+            label: 'e1',
+            startTime: 100,
+            timesScale: 2,
+            func: () => {
+                executed += 1;
+                assert.exports(executed,1);
+            }
+        });
+
+        scheduledEvent.play();
+
+        this.clock.tick(100);
+        assert.equal(executed, 0);
+
+        this.clock.tick(100);
+        assert.equal(executed, 1);
+    });
+
+    it('should run at the specified timeScale when set post creation', () => {
+
+        let executed = 0;
+        let scheduledEvent = new TimelineEvent({
+            label: 'e1',
+            startTime: 100,
+            func: () => {
+                executed += 1;
+                assert.exports(executed,1);
+            }
+        });
+
+        scheduledEvent.play();
+
+        this.clock.tick(100);
+        assert.equal(executed, 1);
+
+        executed = 0;
+
+        scheduledEvent.setTimescale(2);
+
+        scheduledEvent.play();
+
+        this.clock.tick(100);
+        assert.equal(executed, 0);
+
+        this.clock.tick(200);
+        assert.equal(executed, 1);
+
+    });
 });
