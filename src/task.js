@@ -18,7 +18,7 @@ class Task extends EventEmitter{
         } catch (error) {
             return this.emit('task-failed', error);
         }
-        
+
         if (exec instanceof Promise) {
             return exec
                 .then(() => this.emit('task-finished'))

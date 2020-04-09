@@ -2,6 +2,7 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 const Scheduler = require('../src/scheduler');
 
+
 describe('Scheduler', () => {
     beforeEach(() => {
         this.clock = sinon.useFakeTimers();
@@ -12,7 +13,8 @@ describe('Scheduler', () => {
     });
 
     it('should emit an event on matched time', (done) => {
-        let scheduler = new Scheduler('* * * * * *');
+
+        let scheduler = new Scheduler( 100 );
 
         scheduler.on('scheduled-time-matched', (date) => {
             assert.isNotNull(date);
@@ -25,92 +27,69 @@ describe('Scheduler', () => {
         this.clock.tick(1000);
     });
 
-    it('should emit an event every second', (done) => {
-        let scheduler = new Scheduler('* * * * * *');
-        let emited = 0;
+    it('should emit two events', (done) => {
+        let scheduler = new Scheduler( 100 );
+        let scheduler2 = new Scheduler(400);
+        let count = 0;
+
         scheduler.on('scheduled-time-matched', (date) => {
-            emited += 1;
             assert.isNotNull(date);
             assert.instanceOf(date, Date);
-            if(emited === 5){
-                scheduler.stop();
-                done();
-            }
+            scheduler.stop();
+            count++;
+            // done();
         });
+
+        scheduler2.on('scheduled-time-matched', (date) => {
+            assert.isNotNull(date);
+            assert.instanceOf(date, Date);
+            scheduler.stop();
+            count++;
+            assert.equal(count, 2);
+            done();
+        });
+
         scheduler.start();
-        this.clock.tick(5000);
+        scheduler2.start();
+        this.clock.tick(1000);
     });
 
-    it('should recover missed executions', (done) => {
-        this.clock.restore();
-        let scheduler = new Scheduler('* * * * * *', null, true);
-        let emited = 0;
-        scheduler.on('scheduled-time-matched', () => {
-            emited += 1;
+    it('should emit two events when three are created but one is then stopped before it fires', () => {
+        let scheduler = new Scheduler( 100 );
+        let scheduler2 = new Scheduler(400);
+        let scheduler3 = new Scheduler(600);
+        let count = 0;
+
+        scheduler.on('scheduled-time-matched', (date) => {
+            assert.isNotNull(date);
+            assert.instanceOf(date, Date);
+            scheduler.stop();
+            count++;
+            // done();
+        });
+
+        scheduler2.on('scheduled-time-matched', (date) => {
+            assert.isNotNull(date);
+            assert.instanceOf(date, Date);
+            scheduler.stop();
+            count++;
+            assert(false);
+        });
+
+        scheduler2.on('scheduled-time-matched', (date) => {
+            assert.isNotNull(date);
+            assert.instanceOf(date, Date);
+            scheduler.stop();
+            count++;
+            assert.equal(count, 3);
+            done();
         });
         scheduler.start();
-        let wait = true;
-        let startedAt = new Date();
-
-        while(wait){
-            if((new Date().getTime() - startedAt.getTime()) > 1000){
-                wait = false;
-            }
-        }
-
-        setTimeout(() => {
-            scheduler.stop();
-            assert.equal(2, emited);
-            done();
-        }, 1000);
-    }).timeout(3000);
-
-    it('should ignore missed executions', (done) => {
-        this.clock.restore();
-        let scheduler = new Scheduler('* * * * * *', null, false);
-        let emited = 0;
-        scheduler.on('scheduled-time-matched', () => {
-            emited += 1;
-        });
-        scheduler.start();
-        let wait = true;
-        let startedAt = new Date();
-
-        while(wait){
-            if((new Date().getTime() - startedAt.getTime()) > 1000){
-                wait = false;
-            }
-        }
-
-        setTimeout(() => {
-            scheduler.stop();
-            assert.equal(1, emited);
-            done();
-        }, 1000);
-    }).timeout(3000);
-
-    it('should accept dates', (done) => {
-        this.clock.restore();
-        let scheduler = new Scheduler(new Date(new Date().getTime() + 1000), null, false);
-        let emited = 0;
-        scheduler.on('scheduled-time-matched', () => {
-            emited += 1;
-        });
-        scheduler.start();
-        let wait = true;
-        let startedAt = new Date();
-
-        while(wait){
-            if((new Date().getTime() - startedAt.getTime()) > 1000){
-                wait = false;
-            }
-        }
-
-        setTimeout(() => {
-            scheduler.stop();
-            assert.equal(emited, 1);
-            done();
-        }, 1000);
-    }).timeout(3000);
+        scheduler2.start();
+        scheduler3.start();
+        this.clock.tick(300);
+        scheduler2.stop();
+        this.clock.tick(1000);
+    });
 
 });
