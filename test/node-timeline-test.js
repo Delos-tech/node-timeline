@@ -1,7 +1,6 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
-const Timeline = require('../src/node-timeline');
-const TimelineEvent = require('../src/timeline-event');
+const {Timeline, TimelineEvent} = require('../src/node-timeline');
 
 describe('node-timeline', () => {
 

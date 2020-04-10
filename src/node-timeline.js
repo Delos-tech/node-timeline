@@ -60,8 +60,5 @@ class Timeline {
 
 }
 
-module.exports = Timeline;
-
-const tl = new Timeline('t1');
-
+module.exports = {Timeline, TimelineEvent};
 
