@@ -20,6 +20,7 @@ describe('node-timeline', () => {
             label: 'e1',
             delay: 100,
             func: () => {
+                console.log('---------------------------- :func  ----------------------------');
                 executed += 1;
             }
         });

@@ -23,18 +23,19 @@ describe('Task', () => {
     it('should pass in 3 params to the func', async () => {
         let finished = false;
 
-        let task = new Task((now, p1, p2, p3) => {
+        let task = new Task((now, event) => {
             assert.isTrue(now instanceof Date);
-            assert.equal(p1, 1);
-            assert.isTrue(p2);
-            assert.equal(p3, 'yep');
+            assert.equal(event.funcParams[0], 1);
+            assert.isTrue(event.funcParams[1]);
+            assert.equal(event.funcParams[2], 'yep');
             return 'ok';
         });
 
         task.on('task-finished', () => finished = true);
 
+
         const params = [1, true, 'yep'];
-        await task.execute(new Date(), params);
+        await task.execute(new Date(), {funcParams: [...params]});
 
         assert.equal(true, finished);
     });
