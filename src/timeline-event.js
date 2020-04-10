@@ -32,7 +32,7 @@ class TimelineEvent extends EventEmitter {
 
         const task = this.task;
         this.scheduler.on('scheduled-time-matched', (now) => {
-            let result = task.execute(now);
+            let result = task.execute(now, this.funcParams);
             this.emit('task-done', result);
             this.played = true;
             this.playedTime = new Date();
