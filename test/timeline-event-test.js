@@ -15,7 +15,7 @@ describe('TimelineEvent', () => {
         let executed = 0;
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
             }
@@ -30,7 +30,7 @@ describe('TimelineEvent', () => {
         let executed = 0;
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
             }
@@ -38,7 +38,7 @@ describe('TimelineEvent', () => {
 
         let scheduledEvent2 = new TimelineEvent({
             label: 'e1',
-            startTime: 200,
+            delay: 200,
             func: () => {
                 executed += 1;
                 assert.exports(executed,2);
@@ -46,7 +46,7 @@ describe('TimelineEvent', () => {
         });
         let scheduledEvent3 = new TimelineEvent({
             label: 'e1',
-            startTime: 300,
+            delay: 300,
             func: () => {
                 executed += 1;
                 assert.equal(executed,3);
@@ -71,7 +71,7 @@ describe('TimelineEvent', () => {
         let executed = 0;
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
                 assert.exports(executed,1);
@@ -80,7 +80,7 @@ describe('TimelineEvent', () => {
 
         let scheduledEvent2 = new TimelineEvent({
             label: 'e1',
-            startTime: 200,
+            delay: 200,
             func: () => {
                 executed += 1;
                 assert.exports(executed,2);
@@ -88,7 +88,7 @@ describe('TimelineEvent', () => {
         });
         let scheduledEvent3 = new TimelineEvent({
             label: 'e1',
-            startTime: 300,
+            delay: 300,
             func: () => {
                 executed += 1;
                 assert.exports(executed,3);
@@ -114,7 +114,7 @@ describe('TimelineEvent', () => {
         let executed = 0;
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
                 assert.exports(executed,1);
@@ -134,7 +134,7 @@ describe('TimelineEvent', () => {
         let executed = 0;
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             timesScale: 2,
             func: () => {
                 executed += 1;
@@ -156,7 +156,7 @@ describe('TimelineEvent', () => {
         let executed = 0;
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
                 assert.exports(executed,1);
@@ -181,4 +181,83 @@ describe('TimelineEvent', () => {
         assert.equal(executed, 1);
 
     });
+
+    it('should report as played when fired', () => {
+        let executed = 0;
+        let scheduledEvent = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            func: () => {
+                executed += 1;
+            }
+        });
+        scheduledEvent.play();
+        this.clock.tick(3000);
+        assert.equal(executed, 1);
+        assert.equal(scheduledEvent.played, true);
+        scheduledEvent.stop();
+    });
+
+    it('should not fire if paused before start', () => {
+        let executed = 0;
+        let scheduledEvent = new TimelineEvent({
+            label: 'e1',
+            delay: 1000,
+            func: () => {
+                executed += 1;
+            }
+        });
+        scheduledEvent.play();
+        this.clock.tick(500);
+        scheduledEvent.pause();
+        this.clock.tick(4000);
+        assert.equal(executed, 0);
+        scheduledEvent.stop();
+    });
+
+    it('should not fire if paused before start but fire after resume', () => {
+        let executed = 0;
+        let scheduledEvent = new TimelineEvent({
+            label: 'e1',
+            delay: 1000,
+            func: () => {
+                executed += 1;
+            }
+        });
+        scheduledEvent.play();
+        this.clock.tick(500);
+        assert.equal(executed, 0);
+
+        scheduledEvent.pause();
+        this.clock.tick(3000);
+        assert.equal(executed, 0);
+
+        scheduledEvent.resume(500);
+        this.clock.tick(400);
+        assert.equal(executed, 0);
+
+        scheduledEvent.pause();
+        this.clock.tick(2000);
+
+        scheduledEvent.resume(900);
+        this.clock.tick(100);
+        assert.equal(executed, 1);
+        scheduledEvent.stop();
+    });
+
+    it('should not let you resume a non paused event', () => {
+        let executed = 0;
+        let scheduledEvent = new TimelineEvent({
+            label: 'e1',
+            delay: 1000,
+            func: () => {
+                executed += 1;
+            }
+        });
+        scheduledEvent.play();
+        this.clock.tick(500);
+        assert.throws(() => {scheduledEvent.resume()}, Error);
+    });
+
 });
+

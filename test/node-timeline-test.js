@@ -19,7 +19,7 @@ describe('node-timeline', () => {
 
         const event = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
             }
@@ -39,7 +39,7 @@ describe('node-timeline', () => {
 
         const event = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -48,7 +48,7 @@ describe('node-timeline', () => {
 
         const event2 = new TimelineEvent({
             label: 'e2',
-            startTime: 200,
+            delay: 200,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 2);
@@ -57,7 +57,7 @@ describe('node-timeline', () => {
 
         const event3 = new TimelineEvent({
             label: 'e3',
-            startTime: 300,
+            delay: 300,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 3);
@@ -79,7 +79,7 @@ describe('node-timeline', () => {
 
         const event = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -88,7 +88,7 @@ describe('node-timeline', () => {
 
         const event2 = new TimelineEvent({
             label: 'e2',
-            startTime: 200,
+            delay: 200,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 2);
@@ -97,7 +97,7 @@ describe('node-timeline', () => {
 
         const event3 = new TimelineEvent({
             label: 'e3',
-            startTime: 300,
+            delay: 300,
             func: () => {
                 executed += 1;
             }
@@ -120,7 +120,7 @@ describe('node-timeline', () => {
 
         const event = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -129,7 +129,7 @@ describe('node-timeline', () => {
 
         const event2 = new TimelineEvent({
             label: 'e2',
-            startTime: 200,
+            delay: 200,
             func: () => {
                 executed += 1;
             }
@@ -137,7 +137,7 @@ describe('node-timeline', () => {
 
         const event3 = new TimelineEvent({
             label: 'e3',
-            startTime: 300,
+            delay: 300,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 3);
@@ -155,7 +155,7 @@ describe('node-timeline', () => {
         assert.equal(executed, 2);
     });
 
-    it('should fire the event based on the startTime and timeScale', () => {
+    it('should fire the event based on the delay and timeScale', () => {
         let executed = 0;
         const timeline = new Timeline('t1');
 
@@ -163,7 +163,7 @@ describe('node-timeline', () => {
 
         const event = new TimelineEvent({
             label: 'e1',
-            startTime: 100,
+            delay: 100,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -179,4 +179,90 @@ describe('node-timeline', () => {
         assert.equal(executed, 1);
     });
 
+    it('should fire the event based running time and ignore time during pause', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+
+        timeline.play();
+
+        this.clock.tick(50);
+        assert.equal(executed, 0);
+
+        timeline.pause();
+        this.clock.tick(2000);
+        assert.equal(executed, 0);
+
+        timeline.resume();
+
+        this.clock.tick(45);
+        assert.equal(executed, 0);
+
+        this.clock.tick(500);
+        assert.equal(executed, 1);
+    });
+
+    it('should fire 2 of the 3 events and not the deleted 1', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        const event2 = new TimelineEvent({
+            label: 'e2',
+            delay: 200,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 99999);
+            }
+        });
+
+        const event3 = new TimelineEvent({
+            label: 'e3',
+            delay: 300,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 2);
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.addEvent(event2);
+        timeline.addEvent(event3);
+
+        timeline.play();
+
+        this.clock.tick(100);
+        assert.equal(executed, 1);
+
+        timeline.pause();
+        timeline.removeEvent('e2');
+        this.clock.tick(2000);
+        assert.equal(executed, 1);
+
+        timeline.resume();
+
+        this.clock.tick(100);
+        assert.equal(executed, 1);
+
+        this.clock.tick(100);
+        assert.equal(executed, 2);
+    });
 });

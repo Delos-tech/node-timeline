@@ -5,8 +5,10 @@ class Timeline {
     constructor(name) {
         this.name = name;
         this.startTime = null;
+        this.pausedTime = null;
         this.timeScale = 1;
         this.events = [];
+        this.totalElapsedPlayingTime = 0;
     }
 
 
@@ -22,15 +24,19 @@ class Timeline {
     }
 
     play() {
+        this.startTime = new Date();
         this.events.forEach(e => e.play());
     }
 
     pause() {
-
+        this.pausedTime = new Date();
+        this.totalElapsedPlayingTime += this.pausedTime.getTime() - this.startTime.getTime();
+        this.events.forEach(e => e.pause());
     }
 
     resume() {
-
+        this.startTime = new Date();
+        this.unplayedEvents().forEach(e => e.resume(this.totalElapsedPlayingTime));
     }
 
     stop() {
@@ -45,6 +51,11 @@ class Timeline {
 
     kill() {
         this.stop();
+    }
+
+    unplayedEvents() {
+        const upe =  this.events.filter(e => e.played === false);
+        return upe;
     }
 
 }

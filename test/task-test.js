@@ -46,4 +46,8 @@ describe('Task', () => {
         await task.execute();
         assert.equal('errou', failed);
     });
+
+    it('should reject a non function', () => {
+        assert.throws(() => { new Task('I am not a function')}, 'execution must be a function');
+    });
 });
