@@ -25,14 +25,11 @@ class TimelineEvent extends EventEmitter {
 
         taskTimeout *= this.timeScale;
 
-        console.log(`Playing. ${this.label} timeout: ${taskTimeout}`);
-
         this.startTime = new Date();
         this.scheduler = new Scheduler(taskTimeout);
 
         const task = this.task;
         this.scheduler.on('scheduled-time-matched', (now) => {
-            console.log('---------------------------- TimelineEvent:  ----------------------------');
             let result = task.execute(now, this);
             this.emit('task-done', result);
             this.played = true;
