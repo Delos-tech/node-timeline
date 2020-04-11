@@ -32,6 +32,7 @@ class TimelineEvent extends EventEmitter {
 
         const task = this.task;
         this.scheduler.on('scheduled-time-matched', (now) => {
+            console.log(`Firing event ${this.label}`);
             let result = task.execute(now, this);
             this.emit('task-done', result);
             this.played = true;
@@ -53,6 +54,7 @@ class TimelineEvent extends EventEmitter {
         if (!this.paused) {
             throw new Error('Timeline not paused');
         }
+        console.log(`Resuming event ${this.label}`);
         this.play(this.delay - elapsed);
     }
 

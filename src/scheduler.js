@@ -18,6 +18,7 @@ class Scheduler extends EventEmitter {
 
     stop() {
         if (this.timeout) {
+            console.log(`Clearing timeout for delay ${this.startTime}`);
             clearTimeout(this.timeout);
         }
         this.timeout = null;
