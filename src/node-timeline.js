@@ -12,7 +12,8 @@ class Timeline {
     }
 
 
-    addEvent(event, position) {
+    addEvent(event) {
+        console.log(`Addeing event ${event.label} to timeline ${this.name}`);
         this.events.push(event);
         event.setTimescale(this.timeScale);
     }
@@ -29,12 +30,14 @@ class Timeline {
     }
 
     pause() {
+        console.log(`Timeline ${this.name} paused`);
         this.pausedTime = new Date();
         this.totalElapsedPlayingTime += this.pausedTime.getTime() - this.startTime.getTime();
         this.events.forEach(e => e.pause());
     }
 
     resume() {
+        console.log(`Timeline ${this.name} resumed`);
         this.startTime = new Date();
         this.unplayedEvents().forEach(e => e.resume(this.totalElapsedPlayingTime));
     }

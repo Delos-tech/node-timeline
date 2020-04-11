@@ -25,6 +25,8 @@ class TimelineEvent extends EventEmitter {
 
         taskTimeout *= this.timeScale;
 
+        console.log(`Playing event ${this.label} delay ${taskTimeout}`);
+
         this.startTime = new Date();
         this.scheduler = new Scheduler(taskTimeout);
 
@@ -41,6 +43,7 @@ class TimelineEvent extends EventEmitter {
     }
 
     pause() {
+        console.log(`Pausing event ${this.label}`);
         this.scheduler.stop();
         this.playing = false;
         this.paused = true;

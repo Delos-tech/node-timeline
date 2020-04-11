@@ -15,7 +15,7 @@ describe('Task', () => {
         let finished = false;
         let task = new Task(() => 'ok');
         task.on('task-finished', () => finished = true);
-        await task.execute();
+        await task.execute(new Date(), {startTime: new Date(), delay: 1000, timeScale: 1});
         assert.equal(true, finished);
     });
 
