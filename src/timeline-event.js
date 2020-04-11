@@ -27,6 +27,7 @@ class TimelineEvent extends EventEmitter {
 
         console.log(`Playing event ${this.label} delay ${taskTimeout}`);
 
+        this.played = false;
         this.startTime = new Date();
         this.scheduler = new Scheduler(taskTimeout);
 
@@ -54,7 +55,7 @@ class TimelineEvent extends EventEmitter {
         if (!this.paused) {
             throw new Error('Timeline not paused');
         }
-        console.log(`Resuming event ${this.label}`);
+        console.log(`------Resuming event ${this.label} ${this.delay - elapsed}`);
         this.play(this.delay - elapsed);
     }
 

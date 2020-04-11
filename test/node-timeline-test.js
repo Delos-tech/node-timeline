@@ -72,6 +72,110 @@ describe('node-timeline', () => {
         assert.equal(executed, 3);
     });
 
+    it('should run, pause, resume, then repeat', () => {
+
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event2 = new TimelineEvent({
+            label: 'e2',
+            delay: 200,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event3 = new TimelineEvent({
+            label: 'e3',
+            delay: 300,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.addEvent(event2);
+        timeline.addEvent(event3);
+
+        timeline.play();
+        this.clock.tick(200);
+        assert.equal(executed, 2);
+
+        timeline.pause();
+        this.clock.tick(1000);
+        assert.equal(executed, 2);
+
+        timeline.resume();
+        this.clock.tick(400);
+        assert.equal(executed, 3);
+
+        timeline.play();
+        this.clock.tick(200);
+        assert.equal(executed, 5);
+
+        timeline.pause();
+        this.clock.tick(1000);
+        assert.equal(executed, 5);
+
+        timeline.resume();
+        this.clock.tick(400);
+        assert.equal(executed, 6);
+
+    });
+
+
+    it('should run then repeat', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event2 = new TimelineEvent({
+            label: 'e2',
+            delay: 200,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event3 = new TimelineEvent({
+            label: 'e3',
+            delay: 300,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.addEvent(event2);
+        timeline.addEvent(event3);
+
+        timeline.play();
+        this.clock.tick(400);
+        assert.equal(executed, 3);
+
+        this.clock.tick(400);
+
+        timeline.play();
+        this.clock.tick(400);
+        assert.equal(executed, 6);
+
+    });
+
     it('should fire 2 events when there are 3 and the timeline is stopped before the 3rd', () => {
         let executed = 0;
         const timeline = new Timeline('t1');
