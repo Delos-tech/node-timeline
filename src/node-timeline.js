@@ -33,7 +33,7 @@ class Timeline {
         console.log(`Timeline ${this.name} paused`);
         this.pausedTime = new Date();
         this.totalElapsedPlayingTime += this.pausedTime.getTime() - this.startTime.getTime();
-        this.events.forEach(e => e.pause());
+        this.unplayedEvents(e => e.pause());
     }
 
     resume() {

@@ -28,10 +28,12 @@ class TimelineEvent extends EventEmitter {
         console.log(`Playing event ${this.label} delay ${taskTimeout}`);
 
         this.played = false;
+        this.paused = false;
         this.startTime = new Date();
         this.scheduler = new Scheduler(taskTimeout);
 
         const task = this.task;
+
         this.scheduler.on('scheduled-time-matched', (now) => {
             console.log(`Firing event ${this.label}`);
             let result = task.execute(now, this);
@@ -52,15 +54,13 @@ class TimelineEvent extends EventEmitter {
     }
 
     resume(elapsed) {
-        if (!this.paused) {
-            throw new Error('Timeline not paused');
-        }
         console.log(`------Resuming event ${this.label} ${this.delay - elapsed}`);
         this.play(this.delay - elapsed);
     }
 
     stop() {
         this.scheduler.stop();
+        this.scheduler = null; // todo resuse?
         this.playing = false;
         this.played = false;
     }
