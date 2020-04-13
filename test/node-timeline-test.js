@@ -391,4 +391,134 @@ describe('node-timeline', () => {
         this.clock.tick(100);
         assert.equal(executed, 2);
     });
+
+    it('fail to pause if it is not running', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+
+        assert.throws(() => { timeline.pause();}, 'Timeline t1 is not running. Current state stopped');
+
+    });
+
+
+    it('fail to pause if it is already paused', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.play();
+
+        this.clock.tick(50);
+        timeline.pause();
+
+        assert.throws(() => { timeline.pause();}, 'Timeline t1 is not running. Current state paused');
+    });
+
+    it('fail to play if it is already running', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.play();
+
+        assert.throws(() => { timeline.play();}, 'Timeline t1 already running in state running');
+    });
+
+    it('fail to play if it is paused', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.play();
+
+        this.clock.tick(50);
+        timeline.pause();
+
+        assert.throws(() => { timeline.play();}, 'Timeline t1 already running in state paused');
+    });
+
+    it('fail to stop if it is already stopped', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+
+        assert.throws(() => { timeline.stop();}, 'Timeline t1 is not running. Current state stopped');
+    });
+
+    it('fail to stop if it is paused', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.play();
+
+        this.clock.tick(50);
+        timeline.pause();
+
+        assert.throws(() => { timeline.stop();}, 'Timeline t1 is not running. Current state paused');
+    });
+
 });

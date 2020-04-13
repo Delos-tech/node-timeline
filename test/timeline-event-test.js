@@ -269,22 +269,5 @@ describe('TimelineEvent', () => {
         scheduledEvent.stop();
     });
 
-    // moved this functionality to timeline
-    // it('should not let you resume a non paused event', () => {
-    //     let executed = 0;
-    //     let scheduledEvent = new TimelineEvent({
-    //         label: 'e1',
-    //         delay: 1000,
-    //         timeline,
-    //         func: () => {
-    //             executed += 1;
-    //         }
-    //     });
-    //     scheduledEvent.play();
-    //     this.clock.tick(500);
-    //
-    //     assert.throws(() => {scheduledEvent.resume()}, Error);
-    // });
-
 });
 

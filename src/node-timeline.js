@@ -3,8 +3,7 @@ const TimelineEvent = require('./timeline-event');
 const state = {
     STOPPED: 'stopped',
     RUNNING: 'running',
-    PAUSED: 'paused',
-    FINISHED: 'finished'
+    PAUSED: 'paused'
 };
 
 class Timeline {
@@ -15,7 +14,7 @@ class Timeline {
         this.pausedTime = null;
         this.timeScale = 1;
         this.events = [];
-        this.totalElapsedPlayingTime = 0;
+        this.playingTime = 0;
         this.state = state.STOPPED;
     }
 
@@ -45,7 +44,7 @@ class Timeline {
         }
         this.state = state.PAUSED;
         this.pausedTime = new Date();
-        this.totalElapsedPlayingTime += this.pausedTime.getTime() - this.startTime.getTime();
+        this.playingTime += this.pausedTime.getTime() - this.startTime.getTime();
         this.unplayedEvents().forEach(e =>  e.pause());
     }
 
@@ -55,7 +54,7 @@ class Timeline {
         }
         this.state = state.RUNNING;
         this.startTime = new Date();
-        this.unplayedEvents().forEach(e => e.resume(this.totalElapsedPlayingTime));
+        this.unplayedEvents().forEach(e => e.resume(this.playingTime));
     }
 
     stop() {
@@ -70,11 +69,7 @@ class Timeline {
         this.timeScale = scale;
     }
 
-    kill() {
-        this.stop();
-    }
-
-    unplayedEvents() {
+     unplayedEvents() {
         return this.events.filter(e => e.played === false);
     }
 
