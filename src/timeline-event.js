@@ -6,10 +6,10 @@ const Scheduler = require('./scheduler');
 
 class TimelineEvent extends EventEmitter {
 
-    constructor({ label, delay, timesScale = 1, func, funcParams }) {
+    constructor({ label, delay, timeline, func, funcParams }) {
         super();
         this.label = label;
-        this.startTime = null;
+        this.timeline = timeline;
         this.delay = delay;
         this.func = func;
         this.funcParams = funcParams;
@@ -17,15 +17,12 @@ class TimelineEvent extends EventEmitter {
         this.playing = false;
         this.played = false;
         this.paused = false;
-        this.timeScale = timesScale;
     }
 
     play(delay) {
         let taskTimeout = delay === undefined ? this.delay : delay;
 
-        taskTimeout *= this.timeScale;
-
-        console.log(`Playing event ${this.label} delay ${taskTimeout}`);
+        taskTimeout *= this.timeline.timeScale;
 
         this.played = false;
         this.paused = false;
@@ -35,11 +32,13 @@ class TimelineEvent extends EventEmitter {
         const task = this.task;
 
         this.scheduler.on('scheduled-time-matched', (now) => {
-            console.log(`Firing event ${this.label}`);
             let result = task.execute(now, this);
             this.emit('task-done', result);
             this.played = true;
             this.playedTime = new Date();
+            if (this.timeline.unplayedEvents().length === 0) {
+                this.timeline.stop();
+            }
         });
 
         this.scheduler.start();
@@ -47,27 +46,21 @@ class TimelineEvent extends EventEmitter {
     }
 
     pause() {
-        console.log(`Pausing event ${this.label}`);
         this.scheduler.stop();
         this.playing = false;
         this.paused = true;
     }
 
     resume(elapsed) {
-        console.log(`------Resuming event ${this.label} ${this.delay - elapsed}`);
         this.play(this.delay - elapsed);
     }
 
     stop() {
         this.scheduler.stop();
-        this.scheduler = null; // todo resuse?
         this.playing = false;
         this.played = false;
     }
 
-    setTimescale(scale) {
-        this.timeScale = scale;
-    }
 }
 
 module.exports = TimelineEvent;

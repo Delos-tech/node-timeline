@@ -19,6 +19,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -39,6 +40,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -48,6 +50,7 @@ describe('node-timeline', () => {
         const event2 = new TimelineEvent({
             label: 'e2',
             delay: 200,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 2);
@@ -57,6 +60,7 @@ describe('node-timeline', () => {
         const event3 = new TimelineEvent({
             label: 'e3',
             delay: 300,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 3);
@@ -80,6 +84,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -88,6 +93,7 @@ describe('node-timeline', () => {
         const event2 = new TimelineEvent({
             label: 'e2',
             delay: 200,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -96,6 +102,7 @@ describe('node-timeline', () => {
         const event3 = new TimelineEvent({
             label: 'e3',
             delay: 300,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -116,6 +123,8 @@ describe('node-timeline', () => {
         timeline.resume();
         this.clock.tick(400);
         assert.equal(executed, 3);
+
+        this.clock.tick(200);
 
         timeline.play();
         this.clock.tick(200);
@@ -139,6 +148,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -147,6 +157,7 @@ describe('node-timeline', () => {
         const event2 = new TimelineEvent({
             label: 'e2',
             delay: 200,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -155,6 +166,7 @@ describe('node-timeline', () => {
         const event3 = new TimelineEvent({
             label: 'e3',
             delay: 300,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -183,6 +195,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -192,6 +205,7 @@ describe('node-timeline', () => {
         const event2 = new TimelineEvent({
             label: 'e2',
             delay: 200,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 2);
@@ -201,6 +215,7 @@ describe('node-timeline', () => {
         const event3 = new TimelineEvent({
             label: 'e3',
             delay: 300,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -224,6 +239,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -233,6 +249,7 @@ describe('node-timeline', () => {
         const event2 = new TimelineEvent({
             label: 'e2',
             delay: 200,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -241,6 +258,7 @@ describe('node-timeline', () => {
         const event3 = new TimelineEvent({
             label: 'e3',
             delay: 300,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 3);
@@ -267,6 +285,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -289,6 +308,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -322,6 +342,7 @@ describe('node-timeline', () => {
         const event = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 1);
@@ -331,6 +352,7 @@ describe('node-timeline', () => {
         const event2 = new TimelineEvent({
             label: 'e2',
             delay: 200,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 99999);
@@ -340,6 +362,7 @@ describe('node-timeline', () => {
         const event3 = new TimelineEvent({
             label: 'e3',
             delay: 300,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed, 2);

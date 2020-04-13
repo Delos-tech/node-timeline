@@ -1,5 +1,12 @@
 const TimelineEvent = require('./timeline-event');
 
+const state = {
+    STOPPED: 'stopped',
+    RUNNING: 'running',
+    PAUSED: 'paused',
+    FINISHED: 'finished'
+};
+
 class Timeline {
 
     constructor(name) {
@@ -9,13 +16,12 @@ class Timeline {
         this.timeScale = 1;
         this.events = [];
         this.totalElapsedPlayingTime = 0;
+        this.state = state.STOPPED;
     }
 
 
     addEvent(event) {
-        console.log(`Addeing event ${event.label} to timeline ${this.name}`);
         this.events.push(event);
-        event.setTimescale(this.timeScale);
     }
 
     removeEvent(label) {
@@ -25,31 +31,43 @@ class Timeline {
     }
 
     play() {
+        if (this.state  === state.RUNNING || this.state === state.PAUSED) {
+            throw new Error(`Timeline ${this.name} already running in state ${this.state}`);
+        }
+        this.state = state.RUNNING;
         this.startTime = new Date();
         this.events.forEach(e => e.play());
     }
 
     pause() {
-        console.log(`Timeline ${this.name} paused`);
+        if (this.state !== state.RUNNING) {
+            throw new Error(`Timeline ${this.name} is not running. Current state ${this.state}`);
+        }
+        this.state = state.PAUSED;
         this.pausedTime = new Date();
         this.totalElapsedPlayingTime += this.pausedTime.getTime() - this.startTime.getTime();
         this.unplayedEvents().forEach(e =>  e.pause());
     }
 
     resume() {
-        console.log(`Timeline ${this.name} resumed`);
+        if (this.state !== state.PAUSED) {
+            throw new Error(`Timeline ${this.name} isn't paused. Current state ${this.state}`);
+        }
+        this.state = state.RUNNING;
         this.startTime = new Date();
         this.unplayedEvents().forEach(e => e.resume(this.totalElapsedPlayingTime));
     }
 
     stop() {
+        if (this.state !== state.RUNNING && this.state !== state.paused) {
+            throw new Error(`Timeline ${this.name} is not running. Current state ${this.state}`);
+        }
+        this.state = state.STOPPED;
         this.events.forEach(e => e.stop());
     }
 
     setTimeScale(scale) {
         this.timeScale = scale;
-        this.events.forEach(e => e.setTimescale(scale));
-
     }
 
     kill() {
@@ -57,8 +75,7 @@ class Timeline {
     }
 
     unplayedEvents() {
-        const upe =  this.events.filter(e => e.played === false);
-        return upe;
+        return this.events.filter(e => e.played === false);
     }
 
 }

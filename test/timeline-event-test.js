@@ -2,8 +2,20 @@ const { assert } = require('chai');
 const sinon = require('sinon');
 const TimelineEvent = require('../src/timeline-event');
 
+class Timeline {
+    constructor(name) {
+        this.name = name;
+        this.timeScale = 1;
+    }
+    stop() {};
+    unplayedEvents() {
+        return 0;}
+}
+
 describe('TimelineEvent', () => {
+    let timeline;
     beforeEach(() => {
+        timeline = new Timeline('Timeline Event')
         this.clock = sinon.useFakeTimers(new Date(2018, 0, 1, 0, 0, 0, 0));
     });
 
@@ -16,6 +28,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -31,6 +44,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -39,6 +53,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent2 = new TimelineEvent({
             label: 'e1',
             delay: 200,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.exports(executed,2);
@@ -47,6 +62,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent3 = new TimelineEvent({
             label: 'e1',
             delay: 300,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.equal(executed,3);
@@ -72,6 +88,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.exports(executed,1);
@@ -81,6 +98,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent2 = new TimelineEvent({
             label: 'e1',
             delay: 200,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.exports(executed,2);
@@ -89,6 +107,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent3 = new TimelineEvent({
             label: 'e1',
             delay: 300,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.exports(executed,3);
@@ -115,6 +134,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.exports(executed,1);
@@ -135,7 +155,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 100,
-            timesScale: 2,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.exports(executed,1);
@@ -144,7 +164,7 @@ describe('TimelineEvent', () => {
 
         scheduledEvent.play();
 
-        this.clock.tick(100);
+        this.clock.tick(50);
         assert.equal(executed, 0);
 
         this.clock.tick(100);
@@ -157,6 +177,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
                 assert.exports(executed,1);
@@ -170,7 +191,7 @@ describe('TimelineEvent', () => {
 
         executed = 0;
 
-        scheduledEvent.setTimescale(2);
+        timeline.timeScale =2;
 
         scheduledEvent.play();
 
@@ -187,6 +208,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 100,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -203,6 +225,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 1000,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -220,6 +243,7 @@ describe('TimelineEvent', () => {
         let scheduledEvent = new TimelineEvent({
             label: 'e1',
             delay: 1000,
+            timeline,
             func: () => {
                 executed += 1;
             }
@@ -245,19 +269,22 @@ describe('TimelineEvent', () => {
         scheduledEvent.stop();
     });
 
-    it('should not let you resume a non paused event', () => {
-        let executed = 0;
-        let scheduledEvent = new TimelineEvent({
-            label: 'e1',
-            delay: 1000,
-            func: () => {
-                executed += 1;
-            }
-        });
-        scheduledEvent.play();
-        this.clock.tick(500);
-        assert.throws(() => {scheduledEvent.resume()}, Error);
-    });
+    // moved this functionality to timeline
+    // it('should not let you resume a non paused event', () => {
+    //     let executed = 0;
+    //     let scheduledEvent = new TimelineEvent({
+    //         label: 'e1',
+    //         delay: 1000,
+    //         timeline,
+    //         func: () => {
+    //             executed += 1;
+    //         }
+    //     });
+    //     scheduledEvent.play();
+    //     this.clock.tick(500);
+    //
+    //     assert.throws(() => {scheduledEvent.resume()}, Error);
+    // });
 
 });
 
