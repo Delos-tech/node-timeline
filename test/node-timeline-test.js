@@ -521,4 +521,85 @@ describe('node-timeline', () => {
         assert.throws(() => { timeline.stop();}, 'Timeline t1 is not running. Current state paused');
     });
 
+    it('time played should match ', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.play();
+
+        this.clock.tick(400);
+
+        assert.equal(timeline.playingTime, 100);
+    });
+
+    it('should match time played including a pause ', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.play();
+
+        this.clock.tick(50);
+        timeline.pause();
+        this.clock.tick(500000);
+        timeline.resume();
+
+        this.clock.tick(50);
+
+        assert.equal(timeline.playingTime, 100);
+    });
+
+    it('should match time played including multiple pauses ', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+        timeline.play();
+
+        this.clock.tick(50);
+        timeline.pause();
+        this.clock.tick(500000);
+        timeline.resume();
+
+        this.clock.tick(25);
+        timeline.pause();
+        this.clock.tick(99);
+        timeline.resume();
+
+        this.clock.tick(400);
+
+        assert.equal(timeline.playingTime, 100);
+    });
+
 });

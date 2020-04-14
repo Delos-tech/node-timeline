@@ -30,8 +30,8 @@ class Timeline {
     }
 
     play() {
-        if (this.state  === state.RUNNING || this.state === state.PAUSED) {
-            throw new Error(`Timeline ${this.name} already running in state ${this.state}`);
+        if (this.state === state.RUNNING || this.state === state.PAUSED) {
+            throw new Error(`play failed. Timeline ${this.name} already running in state ${this.state}`);
         }
         this.state = state.RUNNING;
         this.startTime = new Date();
@@ -40,17 +40,17 @@ class Timeline {
 
     pause() {
         if (this.state !== state.RUNNING) {
-            throw new Error(`Timeline ${this.name} is not running. Current state ${this.state}`);
+            throw new Error(`pause failed. Timeline ${this.name} is not running. Current state ${this.state}`);
         }
         this.state = state.PAUSED;
         this.pausedTime = new Date();
         this.playingTime += this.pausedTime.getTime() - this.startTime.getTime();
-        this.unplayedEvents().forEach(e =>  e.pause());
+        this.unplayedEvents().forEach(e => e.pause());
     }
 
     resume() {
         if (this.state !== state.PAUSED) {
-            throw new Error(`Timeline ${this.name} isn't paused. Current state ${this.state}`);
+            throw new Error(`resume failed. Timeline ${this.name} isn't paused. Current state ${this.state}`);
         }
         this.state = state.RUNNING;
         this.startTime = new Date();
@@ -59,8 +59,9 @@ class Timeline {
 
     stop() {
         if (this.state !== state.RUNNING && this.state !== state.paused) {
-            throw new Error(`Timeline ${this.name} is not running. Current state ${this.state}`);
+            throw new Error(`stop failed. Timeline ${this.name} is not running. Current state ${this.state}`);
         }
+        this.playingTime += new Date().getTime() - this.startTime.getTime();
         this.state = state.STOPPED;
         this.events.forEach(e => e.stop());
     }
@@ -69,11 +70,11 @@ class Timeline {
         this.timeScale = scale;
     }
 
-     unplayedEvents() {
+    unplayedEvents() {
         return this.events.filter(e => e.played === false);
     }
 
 }
 
-module.exports = {Timeline, TimelineEvent};
+module.exports = { Timeline, TimelineEvent };
 
