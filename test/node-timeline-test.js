@@ -1,6 +1,6 @@
 const { assert } = require('chai');
 const sinon = require('sinon');
-const {Timeline, TimelineEvent} = require('../src/node-timeline');
+const { Timeline, TimelineEvent } = require('../src/node-timeline');
 
 describe('node-timeline', () => {
 
@@ -30,7 +30,7 @@ describe('node-timeline', () => {
         timeline.play();
 
         this.clock.tick(100);
-        assert.equal(executed,1);
+        assert.equal(executed, 1);
     });
 
     it('should run 3 events in order', () => {
@@ -392,7 +392,7 @@ describe('node-timeline', () => {
         assert.equal(executed, 2);
     });
 
-    it('fail to pause if it is not running', () => {
+    it('fail to pause if it is not running without error', () => {
         let executed = 0;
         const timeline = new Timeline('t1');
 
@@ -408,7 +408,7 @@ describe('node-timeline', () => {
 
         timeline.addEvent(event);
 
-        assert.throws(() => { timeline.pause();}, 'Timeline t1 is not running. Current state stopped');
+        timeline.pause();
 
     });
 
@@ -433,7 +433,9 @@ describe('node-timeline', () => {
         this.clock.tick(50);
         timeline.pause();
 
-        assert.throws(() => { timeline.pause();}, 'Timeline t1 is not running. Current state paused');
+        assert.throws(() => {
+            timeline.pause();
+        }, 'Timeline t1 is not running. Current state paused');
     });
 
     it('fail to play if it is already running', () => {
@@ -453,7 +455,9 @@ describe('node-timeline', () => {
         timeline.addEvent(event);
         timeline.play();
 
-        assert.throws(() => { timeline.play();}, 'Timeline t1 already running in state running');
+        assert.throws(() => {
+            timeline.play();
+        }, 'Timeline t1 already running in state running');
     });
 
     it('fail to play if it is paused', () => {
@@ -476,7 +480,9 @@ describe('node-timeline', () => {
         this.clock.tick(50);
         timeline.pause();
 
-        assert.throws(() => { timeline.play();}, 'Timeline t1 already running in state paused');
+        assert.throws(() => {
+            timeline.play();
+        }, 'Timeline t1 already running in state paused');
     });
 
     it('fail to stop if it is already stopped', () => {
@@ -495,7 +501,9 @@ describe('node-timeline', () => {
 
         timeline.addEvent(event);
 
-        assert.throws(() => { timeline.stop();}, 'Timeline t1 is not running. Current state stopped');
+        assert.throws(() => {
+            timeline.stop();
+        }, 'Timeline t1 is not running. Current state stopped');
     });
 
     it('fail to stop if it is paused', () => {
@@ -518,7 +526,9 @@ describe('node-timeline', () => {
         this.clock.tick(50);
         timeline.pause();
 
-        assert.throws(() => { timeline.stop();}, 'Timeline t1 is not running. Current state paused');
+        assert.throws(() => {
+            timeline.stop();
+        }, 'Timeline t1 is not running. Current state paused');
     });
 
     it('time played should match ', () => {
@@ -600,6 +610,34 @@ describe('node-timeline', () => {
         this.clock.tick(400);
 
         assert.equal(timeline.playingTime, 100);
+    });
+
+    it('should match time played everytime you run it ', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+                assert.equal(executed, 1);
+            }
+        });
+
+        timeline.addEvent(event);
+        for (let i = 0; i < 5; i++) {
+            timeline.play();
+
+            this.clock.tick(50);
+            timeline.pause();
+            this.clock.tick(500000);
+            timeline.resume();
+
+            this.clock.tick(50);
+            assert.equal(timeline.playingTime, 100);
+        }
     });
 
 });

@@ -21,7 +21,6 @@ class TimelineEvent extends EventEmitter {
 
     play(delay) {
         let taskTimeout = delay === undefined ? this.delay : delay;
-
         taskTimeout *= this.timeline.timeScale;
 
         this.played = false;

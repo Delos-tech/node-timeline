@@ -33,15 +33,21 @@ class Timeline {
         if (this.state === state.RUNNING || this.state === state.PAUSED) {
             throw new Error(`play failed. Timeline ${this.name} already running in state ${this.state}`);
         }
+
         this.state = state.RUNNING;
+        this.playingTime = 0;
         this.startTime = new Date();
         this.events.forEach(e => e.play());
     }
 
     pause() {
+        if (this.state === state.STOPPED) {
+            return; // something else stopped it (like last event fired and called timeline.stop()
+        }
         if (this.state !== state.RUNNING) {
             throw new Error(`pause failed. Timeline ${this.name} is not running. Current state ${this.state}`);
         }
+
         this.state = state.PAUSED;
         this.pausedTime = new Date();
         this.playingTime += this.pausedTime.getTime() - this.startTime.getTime();
