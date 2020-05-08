@@ -1,6 +1,6 @@
 {
     "name": "node-timeline",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "description": "A simple timeline event scheduler for Node.js",
     "author": "Tracy Snell",
     "license": "ISC",

@@ -14,13 +14,38 @@ class Timeline {
         this.pausedTime = null;
         this.timeScale = 1;
         this.events = [];
-        this.playingTime = 0;
+        this.elapsedTime = 0;
         this.state = state.STOPPED;
     }
 
 
-    addEvent(event) {
+    clear() {
+        if (this.state === state.RUNNING || this.state === state.PAUSED) {
+            this.stop();
+        }
+        this.events = [];
+    }
+
+    add(events) {
+        if (Array.isArray(events)) {
+            events.forEach(e => this._addEvent(e));
+        } else {
+            this._addEvent(events);
+        }
+    }
+
+    _addEvent(event) {
         this.events.push(event);
+
+        if (this.state === state.RUNNING || this.state === state.PAUSED) {
+            let playingTime = new Date().getTime() - this.startTime.getTime();
+            playingTime += this.elapsedTime;
+
+            const delay = event.delay - playingTime;
+            if (delay > 0) {
+                event.play(delay);
+            }
+        }
     }
 
     removeEvent(label) {
@@ -35,7 +60,7 @@ class Timeline {
         }
 
         this.state = state.RUNNING;
-        this.playingTime = 0;
+        this.elapsedTime = 0;
         this.startTime = new Date();
         this.events.forEach(e => e.play());
     }
@@ -50,7 +75,7 @@ class Timeline {
 
         this.state = state.PAUSED;
         this.pausedTime = new Date();
-        this.playingTime += this.pausedTime.getTime() - this.startTime.getTime();
+        this.elapsedTime += this.pausedTime.getTime() - this.startTime.getTime();
         this.unplayedEvents().forEach(e => e.pause());
     }
 
@@ -60,14 +85,14 @@ class Timeline {
         }
         this.state = state.RUNNING;
         this.startTime = new Date();
-        this.unplayedEvents().forEach(e => e.resume(this.playingTime));
+        this.unplayedEvents().forEach(e => e.resume(this.elapsedTime));
     }
 
     stop() {
-        if (this.state !== state.RUNNING && this.state !== state.paused) {
+        if (this.state !== state.RUNNING && this.state !== state.PAUSED) {
             throw new Error(`stop failed. Timeline ${this.name} is not running. Current state ${this.state}`);
         }
-        this.playingTime += new Date().getTime() - this.startTime.getTime();
+        this.elapsedTime += new Date().getTime() - this.startTime.getTime();
         this.state = state.STOPPED;
         this.events.forEach(e => e.stop());
     }

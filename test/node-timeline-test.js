@@ -25,7 +25,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
 
         timeline.play();
 
@@ -67,9 +67,9 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
-        timeline.addEvent(event2);
-        timeline.addEvent(event3);
+        timeline.add(event);
+        timeline.add(event2);
+        timeline.add(event3);
 
         timeline.play();
         this.clock.tick(400);
@@ -108,9 +108,9 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
-        timeline.addEvent(event2);
-        timeline.addEvent(event3);
+        timeline.add(event);
+        timeline.add(event2);
+        timeline.add(event3);
 
         timeline.play();
         this.clock.tick(200);
@@ -172,9 +172,9 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
-        timeline.addEvent(event2);
-        timeline.addEvent(event3);
+        timeline.add(event);
+        timeline.add(event2);
+        timeline.add(event3);
 
         timeline.play();
         this.clock.tick(400);
@@ -221,9 +221,9 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
-        timeline.addEvent(event2);
-        timeline.addEvent(event3);
+        timeline.add(event);
+        timeline.add(event2);
+        timeline.add(event3);
 
         timeline.play();
         this.clock.tick(200);
@@ -265,9 +265,9 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
-        timeline.addEvent(event2);
-        timeline.addEvent(event3);
+        timeline.add(event);
+        timeline.add(event2);
+        timeline.add(event3);
 
         timeline.play();
         this.clock.tick(100);
@@ -292,7 +292,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
 
         timeline.play();
         this.clock.tick(100);
@@ -315,7 +315,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
 
         timeline.play();
 
@@ -345,7 +345,6 @@ describe('node-timeline', () => {
             timeline,
             func: () => {
                 executed += 1;
-                assert.equal(executed, 1);
             }
         });
 
@@ -355,7 +354,6 @@ describe('node-timeline', () => {
             timeline,
             func: () => {
                 executed += 1;
-                assert.equal(executed, 99999);
             }
         });
 
@@ -365,13 +363,12 @@ describe('node-timeline', () => {
             timeline,
             func: () => {
                 executed += 1;
-                assert.equal(executed, 2);
             }
         });
 
-        timeline.addEvent(event);
-        timeline.addEvent(event2);
-        timeline.addEvent(event3);
+        timeline.add(event);
+        timeline.add(event2);
+        timeline.add(event3);
 
         timeline.play();
 
@@ -392,6 +389,181 @@ describe('node-timeline', () => {
         assert.equal(executed, 2);
     });
 
+    it('should clear all events when not running', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event2 = new TimelineEvent({
+            label: 'e2',
+            delay: 200,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event3 = new TimelineEvent({
+            label: 'e3',
+            delay: 300,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        timeline.add(event);
+        timeline.add(event2);
+        timeline.add(event3);
+
+        timeline.clear();
+
+        assert.equal(timeline.events.length, 0);
+    });
+
+    it('should clear all events when paused', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event2 = new TimelineEvent({
+            label: 'e2',
+            delay: 200,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event3 = new TimelineEvent({
+            label: 'e3',
+            delay: 300,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        timeline.add(event);
+        timeline.add(event2);
+        timeline.add(event3);
+
+        timeline.play();
+        this.clock.tick(100);
+        timeline.pause();
+
+        timeline.clear();
+
+        assert.equal(timeline.events.length, 0);
+    });
+
+    it('should fire all 3 events including the one added after play started', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event2 = new TimelineEvent({
+            label: 'e2',
+            delay: 200,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event3 = new TimelineEvent({
+            label: 'e3',
+            delay: 150,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        timeline.add(event);
+        timeline.add(event2);
+
+        timeline.play();
+
+        this.clock.tick(100);
+        assert.equal(executed, 1);
+
+        timeline.add(event3);
+
+        this.clock.tick(100);
+        assert.equal(executed, 3);
+    });
+
+    it('should fire all 2 events and not the one added after play started', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event2 = new TimelineEvent({
+            label: 'e2',
+            delay: 150,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event3 = new TimelineEvent({
+            label: 'e3',
+            delay: 300,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        timeline.add(event);
+        timeline.add(event3);
+
+        timeline.play();
+
+        this.clock.tick(200);
+        assert.equal(executed, 1);
+
+        timeline.add(event2);
+
+        this.clock.tick(200);
+        assert.equal(executed, 2);
+    });
+
+
     it('fail to pause if it is not running without error', () => {
         let executed = 0;
         const timeline = new Timeline('t1');
@@ -406,7 +578,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
 
         timeline.pause();
 
@@ -427,7 +599,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
         timeline.play();
 
         this.clock.tick(50);
@@ -452,7 +624,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
         timeline.play();
 
         assert.throws(() => {
@@ -474,7 +646,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
         timeline.play();
 
         this.clock.tick(50);
@@ -499,37 +671,13 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
 
         assert.throws(() => {
             timeline.stop();
         }, 'Timeline t1 is not running. Current state stopped');
     });
 
-    it('fail to stop if it is paused', () => {
-        let executed = 0;
-        const timeline = new Timeline('t1');
-
-        const event = new TimelineEvent({
-            label: 'e1',
-            delay: 100,
-            timeline,
-            func: () => {
-                executed += 1;
-                assert.equal(executed, 1);
-            }
-        });
-
-        timeline.addEvent(event);
-        timeline.play();
-
-        this.clock.tick(50);
-        timeline.pause();
-
-        assert.throws(() => {
-            timeline.stop();
-        }, 'Timeline t1 is not running. Current state paused');
-    });
 
     it('time played should match ', () => {
         let executed = 0;
@@ -545,12 +693,12 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
         timeline.play();
 
         this.clock.tick(400);
 
-        assert.equal(timeline.playingTime, 100);
+        assert.equal(timeline.elapsedTime, 100);
     });
 
     it('should match time played including a pause ', () => {
@@ -567,7 +715,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
         timeline.play();
 
         this.clock.tick(50);
@@ -577,7 +725,7 @@ describe('node-timeline', () => {
 
         this.clock.tick(50);
 
-        assert.equal(timeline.playingTime, 100);
+        assert.equal(timeline.elapsedTime, 100);
     });
 
     it('should match time played including multiple pauses ', () => {
@@ -594,7 +742,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
         timeline.play();
 
         this.clock.tick(50);
@@ -609,7 +757,7 @@ describe('node-timeline', () => {
 
         this.clock.tick(400);
 
-        assert.equal(timeline.playingTime, 100);
+        assert.equal(timeline.elapsedTime, 100);
     });
 
     it('should match time played everytime you run it ', () => {
@@ -626,7 +774,7 @@ describe('node-timeline', () => {
             }
         });
 
-        timeline.addEvent(event);
+        timeline.add(event);
         for (let i = 0; i < 5; i++) {
             timeline.play();
 
@@ -636,8 +784,52 @@ describe('node-timeline', () => {
             timeline.resume();
 
             this.clock.tick(50);
-            assert.equal(timeline.playingTime, 100);
+            assert.equal(timeline.elapsedTime, 100);
         }
     });
 
+    it('should all event adds as a single event or an array', () => {
+        let executed = 0;
+        const timeline = new Timeline('t1');
+
+        const event = new TimelineEvent({
+            label: 'e1',
+            delay: 100,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const event2 = new TimelineEvent({
+            label: 'e2',
+            delay: 150,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        const events = [event, event2];
+
+        const event3 = new TimelineEvent({
+            label: 'e3',
+            delay: 300,
+            timeline,
+            func: () => {
+                executed += 1;
+            }
+        });
+
+        timeline.add(events);
+        timeline.add(event3);
+
+        timeline.play();
+
+        this.clock.tick(200);
+        assert.equal(executed, 2);
+
+        this.clock.tick(200);
+        assert.equal(executed, 3);
+    });
 });
