@@ -4,23 +4,58 @@ const EventEmitter = require('events');
 const Task = require('./task');
 const Scheduler = require('./scheduler');
 
+function formattedTime(date) {
+    return `${pad(date.getHours(), 2)}:${pad(date.getMinutes(), 2)}:${pad(date.getSeconds(), 2)}:${pad(date.getMilliseconds(), 3)}`;
+}
+
+function pad(num, size) {
+    return (`000000000${num}`).substr(-size);
+}
+
+
 class TimelineEvent extends EventEmitter {
 
-    constructor({ label, delay, timeline, func, funcParams }) {
+    constructor({
+                    label,
+                    fireTime,
+                    timeline,
+                    func,
+                    funcParams,
+                    repeatFrequency = 0,
+                    repeatCount = -1,
+                    end = -1
+                }) {
         super();
         this.label = label;
         this.timeline = timeline;
-        this.delay = delay;
+        this.fireTime = fireTime;
         this.func = func;
         this.funcParams = funcParams;
+
+        this.repeatFrequency = repeatFrequency;
+        this.repeatCount = repeatCount;
+        this.end = end;
+        this.repeats = 0;
+
         this.task = new Task(func);
         this.playing = false;
         this.played = false;
         this.paused = false;
+        console.log(`${JSON.stringify(this.toJson(),null,2)}`);
     }
 
-    play(delay) {
-        let taskTimeout = delay === undefined ? this.delay : delay;
+    toJson() {
+        const {label, fireTime, repeatFrequency, repeatCount, end} = this;
+
+        return {label, fireTime, repeatFrequency, repeatCount, end};
+    }
+
+    play(fireTime) {
+        let taskTimeout = fireTime === undefined ? this.fireTime : fireTime;
+        console.log(`${JSON.stringify(this.toJson(),null,2)}`);
+
+        console.log(`play ${formattedTime(new Date())} ${this.label} fire: ${taskTimeout} repets ${this.repeatCount}`);
+
         taskTimeout *= this.timeline.timeScale;
 
         this.played = false;
@@ -31,12 +66,21 @@ class TimelineEvent extends EventEmitter {
         const task = this.task;
 
         this.scheduler.on('scheduled-time-matched', (now) => {
+            this.timeline.scheduleNextEvent();
+            this.timeline.elapsedTime += this.fireTime;
             let result = task.execute(now, this);
             this.emit('task-done', result);
             this.played = true;
             this.playedTime = new Date();
-            if (this.timeline.unplayedEvents().length === 0) {
+            if (this.timeline.unplayedEvents().length === 0 && this.frequency === 0) {
                 this.timeline.stop();
+            } else {
+                if (this.repeatFrequency > 0
+                    && (this.repeatCount === -1 || (this.repeatCount > this.repeats))) {
+                    this.play(this.repeatFrequency);
+                    console.log(`${formattedTime(new Date())} cheduling --- ${this.label} Repeats ${this.repeats} count ${this.repeatCount}`);
+                    this.repeats++;
+                }
             }
         });
 
@@ -51,11 +95,13 @@ class TimelineEvent extends EventEmitter {
     }
 
     resume(elapsed) {
-        this.play(this.delay - elapsed);
+        this.play(this.fireTime - elapsed);
     }
 
     stop() {
-        this.scheduler.stop();
+        if (this.scheduler) {
+            this.scheduler.stop();
+        }
         this.playing = false;
         this.played = false;
     }

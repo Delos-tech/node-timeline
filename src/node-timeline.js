@@ -16,17 +16,20 @@ class Timeline {
         this.events = [];
         this.elapsedTime = 0;
         this.state = state.STOPPED;
+        this.nextEvent = 0;
     }
-
 
     clear() {
         if (this.state === state.RUNNING || this.state === state.PAUSED) {
             this.stop();
         }
+        this.elapsedTime = 0;
+        this.nextEvent = 0;
         this.events = [];
     }
 
     add(events) {
+        // todo support for adding while running?
         if (Array.isArray(events)) {
             events.forEach(e => this._addEvent(e));
         } else {
@@ -41,28 +44,37 @@ class Timeline {
             let playingTime = new Date().getTime() - this.startTime.getTime();
             playingTime += this.elapsedTime;
 
-            const delay = event.delay - playingTime;
-            if (delay > 0) {
-                event.play(delay);
+            const fireTime = event.fireTime - playingTime;
+            if (fireTime > 0) {
+                event.play(fireTime);
             }
         }
     }
 
-    removeEvent(label) {
-        const deletedEvents = this.events.filter(e => e.label === label);
-        deletedEvents.forEach(e => e.stop());
-        this.events = this.events.filter(e => e.label !== label);
+    removeEvent({label, time}) {
+        if (label) {
+            const deletedEvents = this.events.filter(e => e.label === label);
+            deletedEvents.forEach(e => e.stop());
+            this.events = this.events.filter(e => e.label !== label);
+        }
+        if (time) {
+            const deletedEvents = this.events.filter(e => e.time === time);
+            deletedEvents.forEach(e => e.stop());
+            this.events = this.events.filter(e => e.time !== time);
+        }
     }
 
+    // TODO think about the semantics here. Play always is from the start?
     play() {
         if (this.state === state.RUNNING || this.state === state.PAUSED) {
             throw new Error(`play failed. Timeline ${this.name} already running in state ${this.state}`);
         }
 
+        this.nextEvent = 0;
         this.state = state.RUNNING;
         this.elapsedTime = 0;
         this.startTime = new Date();
-        this.events.forEach(e => e.play());
+        this.events[this.nextEvent].play();
     }
 
     pause() {
@@ -74,9 +86,8 @@ class Timeline {
         }
 
         this.state = state.PAUSED;
-        this.pausedTime = new Date();
-        this.elapsedTime += this.pausedTime.getTime() - this.startTime.getTime();
-        this.unplayedEvents().forEach(e => e.pause());
+        this.pausedTime = new Date().getTime() - this.startTime.getTime();
+        this.events[this.nextEvent].pause();
     }
 
     resume() {
@@ -85,7 +96,7 @@ class Timeline {
         }
         this.state = state.RUNNING;
         this.startTime = new Date();
-        this.unplayedEvents().forEach(e => e.resume(this.elapsedTime));
+        this.unplayedEvents().forEach(e => e.resume(this.pausedTime));
     }
 
     stop() {
@@ -103,6 +114,20 @@ class Timeline {
 
     unplayedEvents() {
         return this.events.filter(e => e.played === false);
+    }
+
+    scheduleNextEvent() {
+        if (this.nextEvent >= this.events.length-1 ) {
+            // done
+            // console.log(`done`);
+        } else {
+            this.elapsedTime += this.events[this.nextEvent].fireTime;
+            this.nextEvent++;
+            const event = this.events[this.nextEvent];
+            const relativeFiretime = event.fireTime - this.events[this.nextEvent-1].fireTime;
+            this.events[this.nextEvent].play(relativeFiretime);
+        }
+
     }
 
 }
